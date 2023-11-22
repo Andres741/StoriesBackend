@@ -1,12 +1,15 @@
 package com.conde.stories
 
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import com.conde.stories.data.Data
+import com.conde.stories.data.Data2
+import com.conde.stories.infrastructure.util.AnyMap
+import com.conde.stories.service.GreetingService
+import kotlinx.coroutines.delay
+import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("api/greetings")
-class GreetingController {
+class GreetingController(val service: GreetingService) {
     @GetMapping
     fun greet() = "Hello stories"
 
@@ -27,15 +30,37 @@ class GreetingController {
     )
 
     @GetMapping("dataList")
-    fun dataList() = listOf("a", "b", "c", 'd', null, 7, 4f, Long.MAX_VALUE)
-}
+    fun dataList() = listOf("a", "b", "c", 'd', null, 7, 4f, Long.MAX_VALUE, Data2())
 
-data class Data(
-    val num: Int,
-    val text: String,
-)
+    @GetMapping("get500")
+    fun get500(): Nothing = throw Exception()
 
-class Data2 {
-    val num = 9
-    val text = "hola"
+    @GetMapping("dataSuspend")
+    suspend fun dataSuspend(): AnyMap {
+        val delay = 1000L
+        delay(delay)
+        return mapOf(
+            "kind" to "suspended data",
+            "delay" to mapOf(
+                "unit" to "ms",
+                "amount" to delay
+            )
+        )
+    }
+
+    @GetMapping("dataFromService")
+    suspend fun dataFromService() = service.simpleServiceData()
+
+    @GetMapping("someData")
+    fun getSomeData() = service.getSomeData()
+
+    @PostMapping("someData")
+    fun putSomeData(@RequestBody data: Data) {
+        service.saveSomeData(data)
+    }
+
+    @DeleteMapping("someData")
+    fun deleteAllData() {
+        service.deleteAllData()
+    }
 }
