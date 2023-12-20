@@ -3,6 +3,7 @@ package com.conde.stories.service
 import com.conde.stories.service.model.Data
 import com.conde.stories.infrastructure.util.AnyMap
 import com.conde.stories.infrastructure.util.createUUID
+import com.conde.stories.infrastructure.util.executeQuery
 import kotlinx.coroutines.delay
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Service
@@ -19,7 +20,7 @@ class GreetingService(val db: JdbcTemplate) {
     }
 
     fun getSomeData(): List<Data> {
-        return db.query("SELECT * FROM greetings") { response, _ -> response.getData() }
+        return db.executeQuery("SELECT * FROM greetings") { getData() }
     }
 
     fun saveSomeData(data: Data) {
