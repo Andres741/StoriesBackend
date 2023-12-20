@@ -1,6 +1,6 @@
 package com.conde.stories.service
 
-import com.conde.stories.data.Data
+import com.conde.stories.service.model.Data
 import com.conde.stories.infrastructure.util.AnyMap
 import kotlinx.coroutines.delay
 import org.springframework.jdbc.core.JdbcTemplate

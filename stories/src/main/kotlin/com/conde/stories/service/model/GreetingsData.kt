@@ -1,4 +1,4 @@
-package com.conde.stories.data
+package com.conde.stories.service.model
 
 data class Data(
     val num: Int,

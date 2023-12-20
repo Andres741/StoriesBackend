@@ -1,7 +1,7 @@
 package com.conde.stories.controllers
 
-import com.conde.stories.data.Data
-import com.conde.stories.data.Data2
+import com.conde.stories.service.model.Data
+import com.conde.stories.service.model.Data2
 import com.conde.stories.infrastructure.util.AnyMap
 import com.conde.stories.service.GreetingService
 import kotlinx.coroutines.delay
