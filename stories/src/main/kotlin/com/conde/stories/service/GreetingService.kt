@@ -2,6 +2,7 @@ package com.conde.stories.service
 
 import com.conde.stories.service.model.Data
 import com.conde.stories.infrastructure.util.AnyMap
+import com.conde.stories.infrastructure.util.createUUID
 import kotlinx.coroutines.delay
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Service
@@ -22,7 +23,7 @@ class GreetingService(val db: JdbcTemplate) {
     }
 
     fun saveSomeData(data: Data) {
-        val id = UUID.randomUUID().toString()
+        val id = createUUID()
         db.update("INSERT INTO greetings (id, text, number) VALUES ( ?, ?, ? )", id, data.text, data.num)
     }
 
