@@ -5,7 +5,9 @@ import com.conde.stories.data.Data2
 import com.conde.stories.infrastructure.util.AnyMap
 import com.conde.stories.service.GreetingService
 import kotlinx.coroutines.delay
+import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.server.ResponseStatusException
 
 @RestController
 @RequestMapping("api/greetings")
@@ -34,6 +36,21 @@ class GreetingController(val service: GreetingService) {
 
     @GetMapping("get500")
     fun get500(): Nothing = throw Exception()
+
+    @GetMapping("get404")
+    fun get404(): Nothing = throw ResponseStatusException(HttpStatus.NOT_FOUND, "Resource not found")
+
+    @GetMapping("getCoffee")
+    fun getCoffee(): Nothing = throw ResponseStatusException(HttpStatus.I_AM_A_TEAPOT)
+
+    @GetMapping("getNull")
+    fun getNull() = null
+
+    @GetMapping("getEmptyList")
+    fun getEmptyList() = emptyList<Nothing>()
+
+    @GetMapping("getEmptyObject")
+    fun getEmptyObject() = emptyMap<Any?, Nothing>()
 
     @GetMapping("dataSuspend")
     suspend fun dataSuspend(): AnyMap {
