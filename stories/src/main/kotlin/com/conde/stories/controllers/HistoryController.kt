@@ -1,4 +1,4 @@
-package com.conde.stories
+package com.conde.stories.controllers
 
 import com.conde.stories.service.HistoryService
 import com.conde.stories.service.model.HistoryDto
@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-@RequestMapping("api/history")
-class HistoryController(val service: HistoryService) {
+@RequestMapping("api/history/v1")
+class HistoryController(private val service: HistoryService) {
     @GetMapping("mock")
     fun getMock() = listOf(
         HistoryDto(

@@ -1,4 +1,4 @@
-package com.conde.stories
+package com.conde.stories.controllers
 
 import com.conde.stories.data.Data
 import com.conde.stories.data.Data2
@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 
 @RestController
-@RequestMapping("api/greetings")
-class GreetingController(val service: GreetingService) {
+@RequestMapping("api/greetings/v1")
+class GreetingController(private val service: GreetingService) {
     @GetMapping
     fun greet() = "Hello stories"
 
