@@ -80,4 +80,10 @@ class GreetingController(private val service: GreetingService) {
     fun deleteAllData() {
         service.deleteAllData()
     }
+
+    @GetMapping("path/{item}")
+    fun interceptFromPath(@PathVariable item: String) = mapOf("from path" to item)
+
+    @GetMapping("param")
+    fun interceptFromParam(@RequestParam item: String) = mapOf("from param" to item)
 }
