@@ -6,6 +6,6 @@ import java.util.*
 
 fun createUUID() = UUID.randomUUID().toString()
 
-inline fun <T> JdbcTemplate.executeQuery(sql: String, vararg args: Any?, crossinline mapper: ResultSet.() -> T ): List<T> {
-    return query(sql, { response, _ -> response.mapper() }, args)
+inline fun <T> JdbcTemplate.executeQuery(sql: String, crossinline mapper: ResultSet.() -> T): List<T> {
+    return query(sql) { response, _ -> response.mapper() }
 }
