@@ -34,39 +34,41 @@ class DatabaseInitializer(private val jdbcTemplate: JdbcTemplate) : CommandLineR
     }
 
     private fun initializeHistory() {
+//        jdbcTemplate.execute("DROP TABLE images")
+//        jdbcTemplate.execute("DROP TABLE texts")
+//        jdbcTemplate.execute("DROP TABLE elements")
+//        jdbcTemplate.execute("DROP TABLE stories")
+
         jdbcTemplate.execute("""
             CREATE TABLE IF NOT EXISTS stories (
-				id VARCHAR(60) PRIMARY KEY,
+				id VARCHAR(60),
 				title VARCHAR(255) NOT NULL,
                 startDate BIGINT NOT NULL,
                 endDate BIGINT,
-                version INT
+                version INT,
+                userId VARCHAR(60),
+                PRIMARY KEY (id, userId),
+                FOREIGN KEY (userId) REFERENCES users(id)
 			)
         """.trimIndent())
 
         jdbcTemplate.execute("""
-            CREATE TABLE IF NOT EXISTS element (
-				id VARCHAR(60) PRIMARY KEY,
+            CREATE TABLE IF NOT EXISTS texts (
+            	id VARCHAR(60) PRIMARY KEY,
+				text VARCHAR(4095) NOT NULL,
+                position INT NOT NULL,
                 historyId VARCHAR(60),
                 FOREIGN KEY (historyId) REFERENCES stories(id)
 			)
         """.trimIndent())
 
         jdbcTemplate.execute("""
-            CREATE TABLE IF NOT EXISTS text (
-				id VARCHAR(60) PRIMARY KEY,
-				text VARCHAR(4095) NOT NULL,
-                elementId VARCHAR(60),
-                FOREIGN KEY (elementId) REFERENCES element(id)
-			)
-        """.trimIndent())
-
-        jdbcTemplate.execute("""
-            CREATE TABLE IF NOT EXISTS image (
-				id VARCHAR(60) PRIMARY KEY,
+            CREATE TABLE IF NOT EXISTS images (
+            	id VARCHAR(60) PRIMARY KEY,
 				imageUrl VARCHAR(1023) NOT NULL,
-                elementId VARCHAR(60),
-                FOREIGN KEY (elementId) REFERENCES element(id)
+                position INT NOT NULL,
+                historyId VARCHAR(60),
+                FOREIGN KEY (historyId) REFERENCES stories(id)
 			)
         """.trimIndent())
     }

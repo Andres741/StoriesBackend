@@ -1,48 +1,43 @@
 package com.conde.stories.controllers
 
 import com.conde.stories.service.HistoryService
-import com.conde.stories.service.model.HistoryDto
-import com.conde.stories.service.model.HistoryElementDto
-import com.conde.stories.service.model.HistoryImageDto
-import com.conde.stories.service.model.HistoryTextDto
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import com.conde.stories.service.model.*
+import org.springframework.http.HttpStatus
+import org.springframework.web.bind.annotation.*
+import org.springframework.web.server.ResponseStatusException
 
 @RestController
 @RequestMapping("api/history/v1")
 class HistoryController(private val service: HistoryService) {
     @GetMapping("mock")
-    fun getMock() = listOf(
-        HistoryDto(
-            id = "0",
-            title = "Viaje al monte Bromo",
-            startDate = System.currentTimeMillis() - 1_000_000,
-            endDate = System.currentTimeMillis(),
-            elements = listOf(
-                HistoryElementDto(id = "1", image = HistoryImageDto("https://harindabama.files.wordpress.com/2012/10/bromo11.jpg")),
-                HistoryElementDto(id = "2", text = HistoryTextDto("Monté a caballo en el mar de arena que rodea al volcán activo Bromo, en el este de Java.")),
-                HistoryElementDto(id = "3", image = HistoryImageDto("https://www.elperiodicodelturismo.com/images/crater-monte-bromo.webp")),
-                HistoryElementDto(id = "4", text = HistoryTextDto("Monté a caballo en el mar de arena que rodea al volcán activo Bromo, en el este de Java.")),
-            ),
-        ),
-        HistoryDto(
-            id = "5",
-            title = "Submarinismo en el USS Liberty",
-            startDate = System.currentTimeMillis() - 2_000_000,
-            elements = listOf(
-                HistoryElementDto(id = "6", text = HistoryTextDto("Hice submarinismo dentro del USS Liberty, un barco estadounidense hundido en el noreste de Bali derante la Segunda Gerra Mundial por un submarino japonés.")),
-                HistoryElementDto(id = "7", image = HistoryImageDto( "https://media.tacdn.com/media/attractions-splice-spp-674x446/07/95/10/33.jpg")),
-            ),
-        ),
-        HistoryDto(
-            id = "8",
-            title = "Visita a Kuala Lumpur",
-            startDate = System.currentTimeMillis() - 3_000_000,
-            elements = listOf(
-                HistoryElementDto(id = "9", text = HistoryTextDto("Estuve una semana en Kuala Lumpur, la capital de Malasia.")),
-                HistoryElementDto(id = "10", image = HistoryImageDto("https://images.pexels.com/photos/433989/pexels-photo-433989.jpeg")),
-            ),
-        ),
-    )
+    fun getMock() = service.mock
+
+    @GetMapping("user")
+    fun getUserStories(@RequestParam userId: String) = service.getUserStories(userId)
+
+    @GetMapping("history")
+    fun getHistory(@RequestParam userId: String, @RequestParam historyId: String) = service.getHistory(userId, historyId)
+        ?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
+
+    @PutMapping("history")
+    fun saveHistory(@RequestParam userId: String, @RequestBody history: HistoryDto) {
+        history.elements.forEach {
+            if (it.isValid.not()) throw ResponseStatusException(
+                HttpStatus.NOT_ACCEPTABLE,
+                "elements must have either a image or a text"
+            )
+        }
+        service.saveHistory(userId, history)
+    }
+
+    @DeleteMapping("history")
+    fun deleteHistory(@RequestParam userId: String, @RequestParam historyId: String) {
+        service.deleteHistory(userId, historyId)
+    }
+
+    @DeleteMapping("elements")
+    fun deleteElements(@RequestParam historyId: String) = service.deleteElements(historyId)
+
 }
+
+// nemo id: b6b60f4b-f628-47c4-89ab-3a1e88090057
