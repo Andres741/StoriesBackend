@@ -8,8 +8,12 @@ import org.springframework.web.bind.annotation.*
 @RequestMapping("api/users/v1")
 class UserController(private val service: UserService) {
 
-    @PostMapping("user/{userName}")
-    fun createUser(@PathVariable userName: String) = service.createUser(userName)
+    @PostMapping("user")
+    fun createUser(
+        @RequestParam userName: String,
+        @RequestParam description: String,
+        @RequestParam profileImage: String?
+    ) = service.createUser(userName, description, profileImage)
 
     @GetMapping("user/{userId}")
     fun getUser(@PathVariable userId: String) = service.getUser(userId)

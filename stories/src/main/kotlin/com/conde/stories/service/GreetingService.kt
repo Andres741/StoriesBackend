@@ -8,10 +8,24 @@ import kotlinx.coroutines.delay
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Service
 import java.sql.ResultSet
-import java.util.*
 
 @Service
-class GreetingService(val db: JdbcTemplate) {
+class GreetingService(private val db: JdbcTemplate) {
+
+    fun initialize() {
+        db.run {
+            execute("""
+                CREATE TABLE IF NOT EXISTS greetings (
+                    id VARCHAR(60) PRIMARY KEY,
+                    text VARCHAR(255) NOT NULL,
+                    number INTEGER NOT NULL
+                )
+            """.trimIndent())
+            execute("DELETE FROM greetings WHERE id = '0'")
+            execute("INSERT INTO greetings (id, text, number) VALUES ('0', 'Hello world', 987)")
+        }
+    }
+
     suspend fun simpleServiceData(): AnyMap {
         delay(2000)
         return mapOf(
