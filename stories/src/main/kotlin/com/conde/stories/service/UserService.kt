@@ -8,7 +8,7 @@ import java.sql.ResultSet
 
 @Service
 class UserService(private val db: NamedParameterJdbcTemplate) {
-    val mock = listOf(UserDto(id = "0", name = "Nemo", description = "I am literally nobody", profileImage = ""), UserDto(id = "00", name = "Innominado", description = "Perdí mi nombre, no recuerdo cuando.", profileImage = null))
+    val mock = listOf(UserDto(id = "0", name = "Nemo", description = "Soy literalmente nadie", profileImage = "https://cdn1.iconfinder.com/data/icons/user-pictures/100/unknown-512.png"), UserDto(id = "00", name = "Unnamed", description = "I lost my name, I don't remember when.", profileImage = null))
 
     fun initialize() {
         db.jdbcTemplate.run {
@@ -24,12 +24,14 @@ class UserService(private val db: NamedParameterJdbcTemplate) {
     }
 
     fun createUser(userName: String, description: String, profileImage: String?, userId: String? = null): UserDto? {
+        if (userName.isBlank()) return null
+
         val newUserId = userId ?: createUUID()
         db.update(
             "INSERT INTO users (id, name, description, profileImage) VALUES (:id, :name, :description, :profileImage)",
             mapOf("id" to newUserId, "name" to userName, "description" to description, "profileImage" to profileImage),
         )
-        return getUser(newUserId)
+        return getUser(newUserId)!!
     }
 
     fun getUser(userId: String): UserDto? {
@@ -43,7 +45,7 @@ class UserService(private val db: NamedParameterJdbcTemplate) {
     }
 
     fun deleteUser(userId: String): UserDto? {
-        return getUser(userId).also {
+        return getUser(userId)?.also {
             db.update("DELETE FROM users WHERE id = :id", mapOf("id" to userId))
         }
     }

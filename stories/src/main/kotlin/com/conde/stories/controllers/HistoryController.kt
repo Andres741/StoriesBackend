@@ -13,11 +13,13 @@ class HistoryController(private val service: HistoryService) {
     fun getMock() = service.mock
 
     @GetMapping("user")
-    fun getUserStories(@RequestParam userId: String) = service.getUserStories(userId)
+    fun getUserStories(@RequestParam userId: String): List<HistoryDto> = service.getUserStories(userId)
 
     @GetMapping("history")
-    fun getHistory(@RequestParam userId: String, @RequestParam historyId: String) = service.getHistory(userId, historyId)
-        ?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
+    fun getHistory(
+        @RequestParam userId: String,
+        @RequestParam historyId: String,
+    ): HistoryDto = service.getHistory(userId, historyId) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
 
     @PutMapping("history")
     fun saveHistory(@RequestParam userId: String, @RequestBody history: HistoryDto) {
@@ -36,7 +38,7 @@ class HistoryController(private val service: HistoryService) {
     }
 
     @DeleteMapping("elements")
-    fun deleteElements(@RequestParam historyId: String) = service.deleteElements(historyId)
+    fun deleteElements(@RequestParam historyId: String): Unit = service.deleteElements(historyId)
 
 }
 
