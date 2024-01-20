@@ -18,6 +18,11 @@ class UserController(private val service: UserService) {
     ): UserDto = service.createUser(userName, description, profileImage)
         ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "User name cannot be blank")
 
+    @PutMapping("edit")
+    fun editUser(@RequestBody user: UserDto) {
+        if (!service.editUser(user)) throw ResponseStatusException(HttpStatus.NOT_FOUND, "Requested user does not exists")
+    }
+
     @GetMapping("user/{userId}")
     fun getUser(@PathVariable userId: String): UserDto = service.getUser(userId)
         ?: throw ResponseStatusException(HttpStatus.NOT_FOUND)

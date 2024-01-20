@@ -5,6 +5,8 @@ import com.conde.stories.service.model.HistoryDto
 import com.conde.stories.service.model.HistoryElementDto
 import com.conde.stories.service.model.HistoryImageDto
 import com.conde.stories.service.model.HistoryTextDto
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Service
 import java.sql.ResultSet
@@ -25,6 +27,8 @@ class HistoryService(private val db: NamedParameterJdbcTemplate) {
                     userId VARCHAR(60),
                     PRIMARY KEY (id, userId),
                     FOREIGN KEY (userId) REFERENCES users(id)
+                        ON UPDATE CASCADE
+                        ON DELETE CASCADE
                 )
             """.trimIndent())
 
@@ -35,6 +39,8 @@ class HistoryService(private val db: NamedParameterJdbcTemplate) {
                     position INT NOT NULL,
                     historyId VARCHAR(60),
                     FOREIGN KEY (historyId) REFERENCES stories(id)
+                        ON UPDATE CASCADE
+                        ON DELETE CASCADE
                 )
             """.trimIndent())
 
@@ -45,6 +51,8 @@ class HistoryService(private val db: NamedParameterJdbcTemplate) {
                     position INT NOT NULL,
                     historyId VARCHAR(60),
                     FOREIGN KEY (historyId) REFERENCES stories(id)
+                        ON UPDATE CASCADE
+                        ON DELETE CASCADE
                 )
             """.trimIndent())
         }
@@ -86,8 +94,7 @@ class HistoryService(private val db: NamedParameterJdbcTemplate) {
         }
     }
 
-
-    fun saveHistory(userId: String, history: HistoryDto) {
+    suspend fun saveHistory(userId: String, history: HistoryDto) {
         deleteElements(historyId = history.id)
 
         db.update(
@@ -101,8 +108,12 @@ class HistoryService(private val db: NamedParameterJdbcTemplate) {
             )
         )
 
-        history.elements.forEachIndexed { index, element ->
-            saveElement(historyId = history.id, element = element, position = index)
+        coroutineScope {
+            history.elements.forEachIndexed { index, element ->
+                launch {
+                    saveElement(historyId = history.id, element = element, position = index)
+                }
+            }
         }
     }
 

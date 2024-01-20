@@ -22,7 +22,7 @@ class HistoryController(private val service: HistoryService) {
     ): HistoryDto = service.getHistory(userId, historyId) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
 
     @PutMapping("history")
-    fun saveHistory(@RequestParam userId: String, @RequestBody history: HistoryDto) {
+    suspend fun saveHistory(@RequestParam userId: String, @RequestBody history: HistoryDto) {
         history.elements.forEach {
             if (it.isValid.not()) throw ResponseStatusException(
                 HttpStatus.NOT_ACCEPTABLE,
@@ -33,13 +33,11 @@ class HistoryController(private val service: HistoryService) {
     }
 
     @DeleteMapping("history")
-    fun deleteHistory(@RequestParam userId: String, @RequestParam historyId: String) {
-        service.deleteHistory(userId, historyId)
+    fun deleteHistory(@RequestParam userId: String, @RequestParam historyId: String): HistoryDto {
+        return service.getHistory(userId, historyId)?.also {
+            service.deleteHistory(userId, historyId)
+        } ?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
     }
-
-    @DeleteMapping("elements")
-    fun deleteElements(@RequestParam historyId: String): Unit = service.deleteElements(historyId)
-
 }
 
 // nemo id: b6b60f4b-f628-47c4-89ab-3a1e88090057

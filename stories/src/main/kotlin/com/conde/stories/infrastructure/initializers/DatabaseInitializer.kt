@@ -3,6 +3,7 @@ package com.conde.stories.infrastructure.initializers
 import com.conde.stories.service.GreetingService
 import com.conde.stories.service.HistoryService
 import com.conde.stories.service.UserService
+import kotlinx.coroutines.runBlocking
 import org.springframework.boot.CommandLineRunner
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Component
@@ -15,7 +16,7 @@ class DatabaseInitializer(
     private val historyService: HistoryService,
 ) : CommandLineRunner {
 
-    override fun run(vararg args: String?) {
+    override fun run(vararg args: String?) = runBlocking {
         //dropTables()
         greetingService.initialize()
         userService.initialize()
@@ -34,7 +35,7 @@ class DatabaseInitializer(
         }
     }
 
-    private fun setMocks() {
+    private suspend fun setMocks() {
         val mockUsers = userService.mock
         val mockStories = historyService.mock
         val firstUser = mockUsers.first()

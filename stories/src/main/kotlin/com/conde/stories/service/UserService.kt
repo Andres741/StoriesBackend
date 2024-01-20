@@ -34,6 +34,17 @@ class UserService(private val db: NamedParameterJdbcTemplate) {
         return getUser(newUserId)!!
     }
 
+    fun editUser(user: UserDto): Boolean {
+        if (!existsUser(userId = user.id)) return false
+        db.update(
+            "REPLACE INTO users (id, name, description, profileImage) VALUES (:id, :name, :description, :profileImage)",
+            mapOf("id" to user.id, "name" to user.name, "description" to user.description, "profileImage" to user.profileImage),
+        )
+        return true
+    }
+
+    fun existsUser(userId: String) = getUser(userId = userId) != null
+
     fun getUser(userId: String): UserDto? {
         return db.query("SELECT * FROM users WHERE id = :id", mapOf("id" to userId)) { it, _ ->
             it.toUser()
