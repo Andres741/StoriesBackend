@@ -2,25 +2,35 @@ package com.conde.stories.controllers
 
 import com.conde.stories.service.UserService
 import com.conde.stories.service.model.UserDto
+import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.multipart.MultipartFile
 import org.springframework.web.server.ResponseStatusException
 
 @RestController
 @RequestMapping("api/users/v1")
-class UserController(private val service: UserService) {
+class UserController(
+    private val service: UserService,
+    private val objectMapper: ObjectMapper,
+) {
 
     @PostMapping("user")
-    fun createUser(
+    suspend fun createUser(
         @RequestParam userName: String,
         @RequestParam description: String,
-        @RequestParam profileImage: String?
-    ): UserDto = service.createUser(userName, description, profileImage)
+        @RequestParam("profileImage") file: MultipartFile?,
+    ): UserDto = service.createUser(userName = userName, description = description, profileImageData = file?.bytes)
         ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "User name cannot be blank")
 
-    @PutMapping("edit")
-    fun editUser(@RequestBody user: UserDto) {
-        if (!service.editUser(user)) throw ResponseStatusException(HttpStatus.NOT_FOUND, "Requested user does not exists")
+    @PostMapping("edit")
+    suspend fun editUser(
+        @RequestParam("user") userJson: String,
+        @RequestParam("profileImage") file: MultipartFile?,
+    ): UserDto {
+        val user = objectMapper.readValue(userJson, UserDto::class.java)
+        return service.editUser(user, file?.bytes)
+            ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Requested user does not exists")
     }
 
     @GetMapping("user/{userId}")

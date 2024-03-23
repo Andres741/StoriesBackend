@@ -39,5 +39,3 @@ class HistoryController(private val service: HistoryService) {
         } ?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
     }
 }
-
-// nemo id: b6b60f4b-f628-47c4-89ab-3a1e88090057
