@@ -2,12 +2,17 @@ package com.conde.stories.service
 
 import com.conde.stories.infrastructure.util.createUUID
 import com.conde.stories.service.model.UserDto
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Service
 import java.sql.ResultSet
 
 @Service
-class UserService(private val db: NamedParameterJdbcTemplate) {
+class UserService(
+    private val db: NamedParameterJdbcTemplate,
+    private val imageDataService: ImageDataService,
+) {
     val mock = listOf(UserDto(id = "0", name = "Nemo", description = "Soy literalmente nadie", profileImage = "https://cdn1.iconfinder.com/data/icons/user-pictures/100/unknown-512.png"), UserDto(id = "00", name = "Unnamed", description = "I lost my name, I don't remember when.", profileImage = null))
 
     fun initialize() {
@@ -23,24 +28,40 @@ class UserService(private val db: NamedParameterJdbcTemplate) {
         }
     }
 
-    fun createUser(userName: String, description: String, profileImage: String?, userId: String? = null): UserDto? {
-        if (userName.isBlank()) return null
+    suspend fun createUser(userName: String, description: String, profileImageData: ByteArray?, userId: String? = null): UserDto? = coroutineScope{
+        if (userName.isBlank()) return@coroutineScope null
 
         val newUserId = userId ?: createUUID()
+        val profileImageId = profileImageData?.let { createUUID() }
+
+        profileImageId?.let {
+            launch {
+                imageDataService.saveAsJpegImage(profileImageId, profileImageData)
+            }
+        }
+
         db.update(
             "INSERT INTO users (id, name, description, profileImage) VALUES (:id, :name, :description, :profileImage)",
-            mapOf("id" to newUserId, "name" to userName, "description" to description, "profileImage" to profileImage),
+            mapOf("id" to newUserId, "name" to userName, "description" to description, "profileImage" to profileImageId),
         )
-        return getUser(newUserId)!!
+
+        return@coroutineScope getUser(newUserId)!!
     }
 
-    fun editUser(user: UserDto): Boolean {
-        if (!existsUser(userId = user.id)) return false
+    suspend fun editUser(user: UserDto, profileImageData: ByteArray?): UserDto? = coroutineScope {
+        if (!existsUser(userId = user.id)) return@coroutineScope null
+
+        val profileImageId = profileImageData?.let { createUUID() }
+        profileImageId?.let {
+            launch {
+                imageDataService.saveAsJpegImage(profileImageId, profileImageData)
+            }
+        }
         db.update(
             "REPLACE INTO users (id, name, description, profileImage) VALUES (:id, :name, :description, :profileImage)",
-            mapOf("id" to user.id, "name" to user.name, "description" to user.description, "profileImage" to user.profileImage),
+            mapOf("id" to user.id, "name" to user.name, "description" to user.description, "profileImage" to profileImageId),
         )
-        return true
+        return@coroutineScope getUser(user.id)
     }
 
     fun existsUser(userId: String) = getUser(userId = userId) != null

@@ -57,7 +57,7 @@ class DatabaseInitializer(
                 userId = mockUser.id,
                 userName = mockUser.name,
                 description = mockUser.description,
-                profileImage = mockUser.profileImage,
+                profileImageData = null,
             )
         }
 
