@@ -1,7 +1,9 @@
 package com.conde.stories.service
 
+import com.conde.stories.infrastructure.util.createUUID
 import org.springframework.stereotype.Service
 import java.io.File
+import java.io.FileNotFoundException
 
 @Service
 class ImageDataService {
@@ -12,7 +14,7 @@ class ImageDataService {
         println("storiesPhotos directory is directory: ${photoDirectory.isDirectory}")
         if (!photoDirectory.isDirectory) {
             photoDirectory.delete().also {
-                println("storiesPhotos directory deleted: $it")
+                println("storiesPhotos file deleted: $it")
             }
             photoDirectory.mkdir().also {
                 println("storiesPhotos directory created: $it")
@@ -20,23 +22,29 @@ class ImageDataService {
         }
     }
 
-    fun saveAsJpegImage(imageName: String, photo: ByteArray) {
-        saveImage("$imageName.jpeg", photo)
+    fun saveAsNewJpegImage(imageName: String, photo: ByteArray) : String {
+        val jpegName = "$imageName-${createUUID()}.jpeg"
+        saveFile(jpegName, photo)
+        return jpegName
     }
 
-    fun saveImage(imageName: String, photo: ByteArray) {
-        File(photoDirectory, imageName).outputStream().use { outputStream ->
+    fun saveFile(fileName: String, photo: ByteArray) {
+        File(photoDirectory, fileName).outputStream().use { outputStream ->
             outputStream.write(photo)
         }
     }
 
-    fun getJpegImage(imageName: String): ByteArray {
+    fun getJpegImage(imageName: String): ByteArray? {
         return getImage("$imageName.jpeg")
     }
 
-    fun getImage(imageName: String): ByteArray {
-        return File(photoDirectory, imageName).inputStream().use { input ->
-            input.readAllBytes()
+    fun getImage(imageName: String): ByteArray? {
+        return try {
+            File(photoDirectory, imageName).inputStream().use { input ->
+                input.readAllBytes()
+            }
+        } catch (e: FileNotFoundException) {
+            null
         }
     }
 

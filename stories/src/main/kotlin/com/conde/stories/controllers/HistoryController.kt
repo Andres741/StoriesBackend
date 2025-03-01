@@ -13,7 +13,9 @@ class HistoryController(private val service: HistoryService) {
     fun getMock() = service.mock
 
     @GetMapping("user")
-    fun getUserStories(@RequestParam userId: String): List<HistoryDto> = service.getUserStories(userId)
+    fun getUserStories(@RequestParam userId: String): List<HistoryDto> {
+        return service.getUserStories(userId)
+    }
 
     @GetMapping("history")
     fun getHistory(

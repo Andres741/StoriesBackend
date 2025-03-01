@@ -1,7 +1,6 @@
 package com.conde.stories.controllers
 
 import com.conde.stories.controllers.ImageController.Companion.IMAGES_API_PATH
-import com.conde.stories.infrastructure.util.createUUID
 import com.conde.stories.service.ImageDataService
 import org.springframework.core.io.ByteArrayResource
 import org.springframework.http.HttpStatus
@@ -21,8 +20,8 @@ class ImageController(private val imageDataService: ImageDataService) {
 
     @GetMapping(value = ["/{imageName}"], produces = [MediaType.IMAGE_JPEG_VALUE])
     fun getImage(@PathVariable imageName: String): ResponseEntity<ByteArrayResource>? {
-        val image = imageDataService.getJpegImage(imageName)
-        val resource = ByteArrayResource(image, "$imageName.jpeg")
+        val image = imageDataService.getImage(imageName) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
+        val resource = ByteArrayResource(image, imageName)
         return ResponseEntity
             .status(HttpStatus.OK)
             .contentLength(resource.contentLength())
@@ -30,9 +29,15 @@ class ImageController(private val imageDataService: ImageDataService) {
     }
 
     @PostMapping
-    fun uploadImage(@RequestParam("image") file: MultipartFile): Map<String, String> {
-        val imageName = createUUID()
-        imageDataService.saveAsJpegImage(imageName, file.bytes)
+    fun uploadNewImage(@RequestParam("newImage") file: MultipartFile): Map<String, String> {
+        val imageName = imageDataService.saveAsNewJpegImage(file.name, file.bytes)
+        return mapOf("imageName" to imageName)
+    }
+
+    @PostMapping("test")
+    fun uploadTestingImage(@RequestParam("testImage") file: MultipartFile): Map<String, String> {
+        val imageName = "testImage.jpeg"
+        imageDataService.saveFile(imageName, file.bytes)
         return mapOf("imageName" to imageName)
     }
 

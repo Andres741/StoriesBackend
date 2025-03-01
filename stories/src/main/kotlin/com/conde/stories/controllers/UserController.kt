@@ -19,18 +19,16 @@ class UserController(
     suspend fun createUser(
         @RequestParam userName: String,
         @RequestParam description: String,
-        @RequestParam("profileImage") file: MultipartFile?,
-    ): UserDto = service.createUser(userName = userName, description = description, profileImageData = file?.bytes)
-        ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "User name cannot be blank")
+        @RequestParam profileImage: String?,
+    ): UserDto = service.createUser(userName = userName, description = description, profileImage = profileImage)
+        ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST)
 
     @PostMapping("edit")
     suspend fun editUser(
-        @RequestParam("user") userJson: String,
-        @RequestParam("profileImage") file: MultipartFile?,
+        @RequestBody user: UserDto,
     ): UserDto {
-        val user = objectMapper.readValue(userJson, UserDto::class.java)
-        return service.editUser(user, file?.bytes)
-            ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Requested user does not exists")
+        return service.editUser(user)
+            ?: createUser(user.name, user.description, user.profileImage)
     }
 
     @GetMapping("user/{userId}")

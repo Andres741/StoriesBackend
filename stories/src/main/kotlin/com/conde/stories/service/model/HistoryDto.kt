@@ -22,6 +22,5 @@ data class HistoryTextDto(
 )
 
 data class HistoryImageDto(
-    val imageUrl: String,
+    val imageName: String,
 )
-
