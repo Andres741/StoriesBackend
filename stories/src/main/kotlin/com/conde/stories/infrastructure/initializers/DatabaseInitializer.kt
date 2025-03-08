@@ -1,5 +1,6 @@
 package com.conde.stories.infrastructure.initializers
 
+import com.conde.stories.Mocks
 import com.conde.stories.service.GreetingService
 import com.conde.stories.service.HistoryService
 import com.conde.stories.service.UserService
@@ -36,8 +37,8 @@ class DatabaseInitializer(
     }
 
     private suspend fun setMocks() {
-        val mockUsers = userService.mock
-        val mockStories = historyService.mock
+        val mockUsers = Mocks.users
+        val mockStories = Mocks.stories
         val firstUser = mockUsers.first()
 
         mockStories.forEach { mockHistory ->
@@ -57,7 +58,7 @@ class DatabaseInitializer(
                 userId = mockUser.id,
                 userName = mockUser.name,
                 description = mockUser.description,
-                profileImage = null,
+                profileImage = mockUser.profileImage,
             )
         }
 

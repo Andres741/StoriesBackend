@@ -1,6 +1,10 @@
 package com.conde.stories.service
 
 import com.conde.stories.infrastructure.util.createUUID
+import com.conde.stories.infrastructure.util.useInBackground
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.springframework.stereotype.Service
 import java.io.File
 import java.io.FileNotFoundException
@@ -9,6 +13,7 @@ import java.io.FileNotFoundException
 class ImageDataService {
 
     private val photoDirectory = File("storiesPhotos")
+    private val scope = CoroutineScope(Dispatchers.IO)
 
     init {
         println("storiesPhotos directory is directory: ${photoDirectory.isDirectory}")
@@ -24,26 +29,29 @@ class ImageDataService {
 
     fun saveAsNewJpegImage(imageName: String, photo: ByteArray) : String {
         val jpegName = "$imageName-${createUUID()}.jpeg"
-        saveFile(jpegName, photo)
+        scope.launch {
+            saveFile(jpegName, photo)
+        }
         return jpegName
     }
 
-    fun saveFile(fileName: String, photo: ByteArray) {
-        File(photoDirectory, fileName).outputStream().use { outputStream ->
+    suspend fun saveFile(fileName: String, photo: ByteArray) {
+        File(photoDirectory, fileName).outputStream().useInBackground { outputStream ->
             outputStream.write(photo)
         }
     }
 
-    fun getJpegImage(imageName: String): ByteArray? {
+    suspend fun getJpegImage(imageName: String): ByteArray? {
         return getImage("$imageName.jpeg")
     }
 
-    fun getImage(imageName: String): ByteArray? {
+    suspend fun getImage(imageName: String): ByteArray? {
         return try {
-            File(photoDirectory, imageName).inputStream().use { input ->
+            File(photoDirectory, imageName).inputStream().useInBackground { input ->
                 input.readAllBytes()
             }
         } catch (e: FileNotFoundException) {
+            println(e)
             null
         }
     }

@@ -2,17 +2,14 @@ package com.conde.stories.controllers
 
 import com.conde.stories.service.UserService
 import com.conde.stories.service.model.UserDto
-import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
-import org.springframework.web.multipart.MultipartFile
 import org.springframework.web.server.ResponseStatusException
 
 @RestController
 @RequestMapping("api/users/v1")
 class UserController(
     private val service: UserService,
-    private val objectMapper: ObjectMapper,
 ) {
 
     @PostMapping("user")

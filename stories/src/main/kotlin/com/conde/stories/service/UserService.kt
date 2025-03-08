@@ -12,22 +12,27 @@ class UserService(
     private val db: NamedParameterJdbcTemplate,
     private val imageDataService: ImageDataService,
 ) {
-    val mock = listOf(UserDto(id = "0", name = "Nemo", description = "Soy literalmente nadie", profileImage = "https://cdn1.iconfinder.com/data/icons/user-pictures/100/unknown-512.png"), UserDto(id = "00", name = "Unnamed", description = "I lost my name, I don't remember when.", profileImage = null))
-
     fun initialize() {
         db.jdbcTemplate.run {
-            execute("""
+            execute(
+                """
                 CREATE TABLE IF NOT EXISTS users (
                     id VARCHAR(60) PRIMARY KEY,
                     name VARCHAR(255) NOT NULL,
                     description VARCHAR(1023) NOT NULL,
                     profileImage VARCHAR(1023)
                 )
-            """.trimIndent())
+            """.trimIndent()
+            )
         }
     }
 
-    suspend fun createUser(userName: String, description: String, profileImage: String?, userId: String? = null): UserDto? = coroutineScope {
+    suspend fun createUser(
+        userName: String,
+        description: String,
+        profileImage: String?,
+        userId: String? = null
+    ): UserDto? = coroutineScope {
         if (userName.isBlank()) return@coroutineScope null
         if (!isProfileImageValid(profileImage)) return@coroutineScope null
 
@@ -47,7 +52,12 @@ class UserService(
 
         db.update(
             "UPDATE users SET name = :name, description = :description, profileImage = :profileImage WHERE id = :id",
-            mapOf("id" to user.id, "name" to user.name, "description" to user.description, "profileImage" to user.profileImage),
+            mapOf(
+                "id" to user.id,
+                "name" to user.name,
+                "description" to user.description,
+                "profileImage" to user.profileImage
+            ),
         )
         return@coroutineScope getUser(user.id)
     }

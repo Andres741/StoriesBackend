@@ -1,5 +1,6 @@
 package com.conde.stories.controllers
 
+import com.conde.stories.Mocks
 import com.conde.stories.service.HistoryService
 import com.conde.stories.service.model.*
 import org.springframework.http.HttpStatus
@@ -10,7 +11,7 @@ import org.springframework.web.server.ResponseStatusException
 @RequestMapping("api/history/v1")
 class HistoryController(private val service: HistoryService) {
     @GetMapping("mock")
-    fun getMock() = service.mock
+    fun getMock() = Mocks.stories
 
     @GetMapping("user")
     fun getUserStories(@RequestParam userId: String): List<HistoryDto> {

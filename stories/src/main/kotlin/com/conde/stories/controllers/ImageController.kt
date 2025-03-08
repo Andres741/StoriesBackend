@@ -19,7 +19,7 @@ class ImageController(private val imageDataService: ImageDataService) {
     }
 
     @GetMapping(value = ["/{imageName}"], produces = [MediaType.IMAGE_JPEG_VALUE])
-    fun getImage(@PathVariable imageName: String): ResponseEntity<ByteArrayResource>? {
+    suspend fun getImage(@PathVariable imageName: String): ResponseEntity<ByteArrayResource>? {
         val image = imageDataService.getImage(imageName) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
         val resource = ByteArrayResource(image, imageName)
         return ResponseEntity
@@ -35,7 +35,7 @@ class ImageController(private val imageDataService: ImageDataService) {
     }
 
     @PostMapping("test")
-    fun uploadTestingImage(@RequestParam("testImage") file: MultipartFile): Map<String, String> {
+    suspend fun uploadTestingImage(@RequestParam("testImage") file: MultipartFile): Map<String, String> {
         val imageName = "testImage.jpeg"
         imageDataService.saveFile(imageName, file.bytes)
         return mapOf("imageName" to imageName)
